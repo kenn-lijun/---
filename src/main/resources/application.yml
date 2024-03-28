@@ -26,8 +26,8 @@ swagger:
   # 请求前缀
   pathMapping: /
 
-appId:
-secret:
+appId: xxxxxxxxxxxxxxxx
+secret: xxxxxxxxxxxxxxxx
 grantType: authorization_code;
 
 
