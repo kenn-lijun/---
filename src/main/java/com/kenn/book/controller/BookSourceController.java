@@ -1,6 +1,5 @@
 package com.kenn.book.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.kenn.book.domain.Result;
 import com.kenn.book.domain.entity.BookSource;
 import com.kenn.book.service.BookSourceService;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Description TODO
@@ -32,9 +30,8 @@ public class BookSourceController {
 
     @GetMapping("/list")
     @ApiOperation("列表")
-    public Result<List<String>> list() {
-        List<BookSource> sourceList = bookSourceService.list(new QueryWrapper<BookSource>().eq("is_delete", 0).orderByAsc("sort"));
-        return Result.success(sourceList.stream().map(BookSource::getName).collect(Collectors.toList()));
+    public Result<List<BookSource>> list() {
+        return Result.success(bookSourceService.listAll());
     }
 
 }

@@ -1,4 +1,4 @@
-package com.kenn.book.domain;
+package com.kenn.book.domain.res;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,5 +21,7 @@ public class OkHttpResult {
     private Integer code;
 
     private String data;
+
+    private String responseType;
 
 }

@@ -1,14 +1,10 @@
 package com.kenn.book.controller;
 
-import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenn.book.domain.Result;
-import com.kenn.book.domain.entity.BookSource;
 import com.kenn.book.domain.entity.ExploreSearchRule;
-import com.kenn.book.service.BookSourceService;
+import com.kenn.book.exception.BaseException;
 import com.kenn.book.service.ExploreSearchRuleService;
 import com.kenn.book.utils.StringUtils;
 import io.swagger.annotations.Api;
@@ -33,30 +29,24 @@ import java.util.stream.Collectors;
  * @Date 2022年06月01日 09:00:00
  */
 @RestController
-@RequestMapping("/source/book/type")
+@RequestMapping("/explore")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Api(tags = "书源书籍类别")
-public class SourceBookTypeController {
+@Api(tags = "书城")
+public class ExploreController {
 
-    private final BookSourceService bookSourceService;
     private final ExploreSearchRuleService exploreSearchRuleService;
 
-    @GetMapping("/listBySource")
-    @ApiOperation("根据书源获取书籍类别")
+    @GetMapping("/tag/list")
+    @ApiOperation("根据书源获取书城分组信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "name",value = "书源名称",required = true,type = "query"),
+            @ApiImplicitParam(name = "sourceId",value = "书源id",required = true,type = "query"),
     })
-    public Result<List<String>> listBySource(String name) throws Exception {
-        BookSource source = bookSourceService.getOne(new QueryWrapper<BookSource>().eq("name", name));
-        LambdaQueryWrapper<ExploreSearchRule> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ExploreSearchRule::getSourceId, source.getId());
-        ExploreSearchRule searchRule = exploreSearchRuleService.getOne(queryWrapper);
-        if (ObjectUtil.isNull(searchRule)) {
-            throw new RuntimeException("该书源暂未配置书城规则");
-        }
+    public Result<List<String>> tagList(Long sourceId) throws Exception {
+        ExploreSearchRule searchRule = exploreSearchRuleService.getBySourceId(sourceId);
+
         String categoryInfo = searchRule.getCategoryInfo();
         if (StringUtils.isEmpty(categoryInfo)) {
-            throw new RuntimeException("该书源暂未配置书城规则");
+            throw new BaseException("该书源暂未配置书城规则");
         }
         List<Map<String, String>> categoryList = new ObjectMapper().readValue(categoryInfo, new TypeReference<List<Map<String, String>>>() {});
         return Result.success(categoryList.stream().map(i -> i.get("name")).collect(Collectors.toList()));

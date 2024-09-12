@@ -27,7 +27,7 @@ public class Result<T> implements Serializable {
     }
 
     public static <T> Result<T> success(String msg, T data) {
-        return new Result(HttpStatus.SUCCESS, msg, data);
+        return new Result<>(HttpStatus.SUCCESS, msg, data);
     }
 
     public static <T> Result<T> success(T data) {
@@ -43,7 +43,11 @@ public class Result<T> implements Serializable {
     }
 
     public static <T> Result<T> error(String msg, T data) {
-        return new Result(HttpStatus.ERROR, msg, data);
+        return new Result<>(HttpStatus.ERROR, msg, data);
+    }
+
+    public static <T> Result<T> error(Integer code, String msg) {
+        return new Result<>(code, msg, null);
     }
 
     public static <T> Result<T> error(T data) {

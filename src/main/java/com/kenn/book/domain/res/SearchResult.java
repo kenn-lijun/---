@@ -1,4 +1,4 @@
-package com.kenn.book.domain;
+package com.kenn.book.domain.res;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 /**
  * Description:
  * date: 2021/7/1 8:49
- *
+ *0
  * @author 18305
  */
 @Data
@@ -40,5 +40,7 @@ public class SearchResult {
 
     @ApiModelProperty("封面链接")
     private String imgLink;
+
+    private Long sourceId;
 
 }

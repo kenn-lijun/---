@@ -29,8 +29,6 @@ public class MybatisPlusConfig {
 		return paginationInnerInterceptor;
 	}
 
-
-
 	/**
 	 * 乐观锁插件
 	 */

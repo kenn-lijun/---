@@ -25,23 +25,17 @@ public class InfoSearchRule {
     @ApiModelProperty("书源id")
     private String sourceId;
 
-    @ApiModelProperty("源基础url")
-    private String baseUrl;
+    @ApiModelProperty("初始化链接js代码")
+    private String initUrl;
+
+    @ApiModelProperty("初始化数据js代码")
+    private String initData;
 
     @ApiModelProperty("编码")
     private String charsetName;
 
-    @ApiModelProperty("获取章节名称的规则")
-    private String name;
-
     @ApiModelProperty("获取详情的规则")
     private String info;
-
-    @ApiModelProperty("下一章链接规则")
-    private String nextUrl;
-
-    @ApiModelProperty("上一章链接规则")
-    private String beforeUrl;
 
     @ApiModelProperty("下一页链接")
     private String nextPage;

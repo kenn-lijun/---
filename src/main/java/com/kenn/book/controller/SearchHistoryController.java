@@ -1,21 +1,21 @@
 package com.kenn.book.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.kenn.book.domain.Constants;
 import com.kenn.book.domain.Result;
 import com.kenn.book.domain.entity.SearchHistory;
 import com.kenn.book.service.SearchHistoryService;
+import com.kenn.book.utils.RedisUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description TODO
@@ -34,18 +34,24 @@ public class SearchHistoryController {
 
     @PostMapping("/save")
     @ApiOperation("保存历史")
-    @Transactional(rollbackFor = Exception.class)
     public Result<?> save(@RequestBody SearchHistory searchHistory) {
-        LambdaQueryWrapper<SearchHistory> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SearchHistory::getOpenid, searchHistory.getOpenid());
-        queryWrapper.eq(SearchHistory::getInfo, searchHistory.getInfo());
-        searchHistoryService.remove(queryWrapper);
-
-        Date operateTime = new Date();
-        searchHistory.setCreateTime(operateTime);
-        searchHistory.setUpdateTime(operateTime);
-        boolean result = searchHistoryService.save(searchHistory);
-        return result ? Result.success("保存搜索历史成功") : Result.success("保存搜索历史失败");
+        RLock lock = RedisUtils.getLock(String.format(Constants.SEARCH_HISTORY_LOCK_KEY, searchHistory.getOpenid()));
+        boolean flag = false;
+        try {
+            // 尝试拿锁10s后停止重试,返回false
+            // 具有Watch Dog 自动延期机制 默认续30s
+            if (lock.tryLock(10, TimeUnit.SECONDS)) {
+                flag = searchHistoryService.saveHistory(searchHistory);
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return Result.error(exception.getMessage());
+        } finally {
+            if (lock.isLocked() && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+        return flag ? Result.success() : Result.error();
     }
 
     @GetMapping("/list")
@@ -53,14 +59,8 @@ public class SearchHistoryController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "openid",value = "小程序openid",required = true,type = "query"),
     })
-    public Result<List<String>> list(String openid) {
-        LambdaQueryWrapper<SearchHistory> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.select(SearchHistory::getInfo);
-        queryWrapper.eq(SearchHistory::getOpenid, openid);
-        queryWrapper.orderByDesc(SearchHistory::getCreateTime);
-        queryWrapper.last("limit 7");
-        List<SearchHistory> result = searchHistoryService.list(queryWrapper);
-        return Result.success(result.stream().map(SearchHistory::getInfo).collect(Collectors.toList()));
+    public Result<List<SearchHistory>> list(String openid) {
+        return Result.success(searchHistoryService.historyList(openid));
     }
 
 }

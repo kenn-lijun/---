@@ -32,7 +32,7 @@ public class SwaggerConfig {
     private String pathMapping;
 
     @Bean
-    public Docket createRestApi(){
+    public Docket createRestApi() {
         // 配置全局参数返回状态
         List<ResponseMessage> resMsgList = Arrays.asList(
                 new ResponseMessageBuilder().code(200).message("请求成功！").build(),
@@ -50,12 +50,13 @@ public class SwaggerConfig {
                 .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 // 扫描指定包中的swagger注解
                 // .apis(RequestHandlerSelectors.basePackage("com.ruoyi.project.tool.swagger"))
-                // 扫描所有 .apis(RequestHandlerSelectors.any())
+                // 扫描所有
+                // .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
                 .build()
                 /* 设置安全模式，swagger可以设置访问token */
-//                .securitySchemes(securitySchemes())
-//                .securityContexts(securityContexts())
+                // .securitySchemes(securitySchemes())
+                // .securityContexts(securityContexts())
                 .pathMapping(pathMapping)
                 .globalResponseMessage(RequestMethod.GET, resMsgList)
                 .globalResponseMessage(RequestMethod.POST, resMsgList)
@@ -66,8 +67,7 @@ public class SwaggerConfig {
     /**
      * 安全模式，这里指定token通过Authorization头请求头传递
      */
-    private List<ApiKey> securitySchemes()
-    {
+    private List<ApiKey> securitySchemes() {
         List<ApiKey> apiKeyList = new ArrayList<ApiKey>();
         apiKeyList.add(new ApiKey("Authorization", "Authorization", "header"));
         return apiKeyList;
@@ -76,8 +76,7 @@ public class SwaggerConfig {
     /**
      * 安全上下文
      */
-    private List<SecurityContext> securityContexts()
-    {
+    private List<SecurityContext> securityContexts() {
         List<SecurityContext> securityContexts = new ArrayList<>();
         securityContexts.add(
                 SecurityContext.builder()
@@ -90,8 +89,7 @@ public class SwaggerConfig {
     /**
      * 默认的安全上引用
      */
-    private List<SecurityReference> defaultAuth()
-    {
+    private List<SecurityReference> defaultAuth() {
         AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
@@ -103,8 +101,7 @@ public class SwaggerConfig {
     /**
      * 添加摘要信息
      */
-    private ApiInfo apiInfo()
-    {
+    private ApiInfo apiInfo() {
         // 用ApiInfoBuilder进行定制
         return new ApiInfoBuilder()
                 // 设置标题

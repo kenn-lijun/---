@@ -27,14 +27,14 @@ public class MyBookShelf {
     @ApiModelProperty("小程序openid")
     private String openid;
 
+    @ApiModelProperty("书源id")
+    private Long sourceId;
+
     @ApiModelProperty("书籍名称")
     private String bookName;
 
     @ApiModelProperty("书籍链接")
     private String bookLink;
-
-    @ApiModelProperty("书源名称")
-    private String source;
 
     @ApiModelProperty("图片链接")
     private String img;

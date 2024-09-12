@@ -25,9 +25,6 @@ public class BookSearchRule {
     @ApiModelProperty("书源id")
     private Long sourceId;
 
-    @ApiModelProperty("源基础url")
-    private String baseUrl;
-
     @ApiModelProperty("网页编码: 默认utf-8")
     private String charsetName;
 
@@ -69,8 +66,5 @@ public class BookSearchRule {
 
     @ApiModelProperty("获取书籍封面链接的规则")
     private String imgUrl;
-
-    @ApiModelProperty("获取下一页的规则")
-    private String nextPage;
 
 }

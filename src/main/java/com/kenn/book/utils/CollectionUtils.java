@@ -36,4 +36,10 @@ public final class CollectionUtils {
         return resultList;
     }
 
+    public static String generateSignature(Map<String, String[]> headers) {
+        return headers.keySet().stream()
+                .sorted()
+                .reduce("", (pre, key) -> pre + key + "=" + String.join(",", headers.get(key)), String::concat);
+    }
+
 }

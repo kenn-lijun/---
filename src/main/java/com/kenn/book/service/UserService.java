@@ -11,4 +11,9 @@ import com.kenn.book.domain.entity.User;
  * @Date 2022年11月29日 15:15:00
  */
 public interface UserService extends IService<User> {
+
+    User getByOpenid(String openid);
+
+    boolean saveUser(User user);
+
 }

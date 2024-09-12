@@ -11,4 +11,9 @@ import com.kenn.book.domain.entity.MyBookShelf;
  * @Date 2022年05月21日 14:33:00
  */
 public interface MyBookShelfService extends IService<MyBookShelf> {
+
+    boolean saveEntity(MyBookShelf myBookShelf);
+
+    boolean delete(Long id);
+
 }

@@ -25,17 +25,20 @@ public class ChapterSearchRule {
     @ApiModelProperty("书源id")
     private Long sourceId;
 
-    @ApiModelProperty("源基础url")
-    private String baseUrl;
+    @ApiModelProperty("初始化链接js")
+    private String initUrl;
+
+    @ApiModelProperty("初始化数据js")
+    private String initData;
+
+    @ApiModelProperty("章节列表页 特殊情况：列表需要重新获取")
+    private String chapterPage;
 
     @ApiModelProperty("获取书籍封面链接的规则")
     private String imgUrl;
 
     @ApiModelProperty("获取介绍的规则")
     private String intro;
-
-    @ApiModelProperty("章节列表页面 特殊情况：需点击按钮获取")
-    private String chapterPage;
 
     @ApiModelProperty("获取章节列表规则")
     private String chapterList;

@@ -1,4 +1,4 @@
-package com.kenn.book.domain;
+package com.kenn.book.domain.res;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @ApiModel("章节详情信息")
-public class ChapterInfo {
+public class ChapterInfoResult {
 
     @ApiModelProperty("章节名称")
     private String name;

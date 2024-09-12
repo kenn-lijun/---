@@ -1,4 +1,4 @@
-package com.kenn.book.domain;
+package com.kenn.book.domain.res;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -35,6 +35,6 @@ public class ChapterResult {
     private String img;
 
     @ApiModelProperty("章节列表")
-    List<ChapterInfo> chapterList;
+    List<ChapterInfoResult> chapterList;
 
 }

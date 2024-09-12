@@ -32,9 +32,6 @@ public class SearchHistory {
     @ApiModelProperty("搜索信息")
     private String info;
 
-    @ApiModelProperty("书源")
-    private String source;
-
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;

@@ -18,9 +18,8 @@
 
     <repositories>
         <repository>
-            <id>com.e-iceblue</id>
-            <name>e-iceblue</name>
-            <url>https://repo.e-iceblue.cn/repository/maven-public/</url>
+            <id>kenn</id>
+            <url>https://maven.aliyun.com/repository/public</url>
         </repository>
     </repositories>
 
@@ -86,17 +85,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <!-- redis支持 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
         <dependency>
@@ -169,13 +168,39 @@
             <version>9.3.3.v20150827</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.mortbay.jetty.alpn/alpn-boot -->
-<!--        <dependency>-->
-<!--            <groupId>org.mortbay.jetty.alpn</groupId>-->
-<!--            <artifactId>alpn-boot</artifactId>-->
-<!--            <version>8.1.13.v20181017</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
+        <!-- jsonPath依赖 -->
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+
+        <!-- js引擎依赖 -->
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js-scriptengine</artifactId>
+            <version>20.3.14</version>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js</artifactId>
+            <version>20.3.14</version>
+        </dependency>
+
+        <!--redisson-->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>3.17.6</version>
+        </dependency>
+
+        <!-- TransmittableThreadLocal -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+            <version>2.14.5</version>
+        </dependency>
+
 
     </dependencies>
 

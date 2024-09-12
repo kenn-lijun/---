@@ -1,20 +1,20 @@
 package com.kenn.book.controller;
 
-import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.kenn.book.domain.Constants;
 import com.kenn.book.domain.Result;
 import com.kenn.book.domain.entity.User;
 import com.kenn.book.service.UserService;
+import com.kenn.book.utils.RedisUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description TODO
@@ -33,35 +33,33 @@ public class UserController {
 
     @PostMapping("/save")
     @ApiOperation("保存历史")
-    @Transactional
-    public Result save(@RequestBody User user) {
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq("openid", user.getOpenid());
-        User isExit = userService.getOne(wrapper);
-        if (ObjectUtil.isNotNull(isExit)) {
-            isExit.setAvatar(user.getAvatar());
-            isExit.setNickName(user.getNickName());
-            isExit.setPhone(user.getPhone());
-            isExit.setCreateTime(new Date());
-            userService.updateById(isExit);
-            return Result.success("更新成功");
+    public Result<?> save(@RequestBody User user) {
+        RLock lock = RedisUtils.getLock(String.format(Constants.USER_LOCK_KEY, user.getOpenid()));
+        boolean flag = false;
+        try {
+            // 尝试拿锁10s后停止重试,返回false
+            // 具有Watch Dog 自动延期机制 默认续30s
+            if (lock.tryLock(10, TimeUnit.SECONDS)) {
+                flag = userService.saveUser(user);
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return Result.error(exception.getMessage());
+        } finally {
+            if (lock.isLocked() && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
-
-        Date operateTime = new Date();
-        user.setCreateTime(operateTime);
-        user.setUpdateTime(operateTime);
-        boolean result = userService.save(user);
-        return result ? Result.success("保存成功") : Result.error("保存失败");
+        return flag ? Result.success("保存成功") : Result.error("保存失败");
     }
 
     @GetMapping("/first")
-    @ApiOperation("根据openid获取用户是否存在")
+    @ApiOperation("获取用户信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "openid",value = "小程序openid",required = true,type = "query"),
     })
     public Result<User> first(String openid) {
-        User result = userService.getOne(new QueryWrapper<User>().eq("openid", openid));
-        return Result.success(result);
+        return Result.success(userService.getByOpenid(openid));
     }
 
 }

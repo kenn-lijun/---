@@ -1,20 +1,35 @@
 package com.kenn.book.config;
 
+import com.kenn.book.interceptor.SignatureInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
+    @Autowired
+    private SignatureInterceptor signatureInterceptor;
+
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry)
-    {
-        /** swagger配置 */
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
+
+    /**
+     * 自定义拦截规则
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(signatureInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/v2/api-docs", "/swagger-resources/**", "/swagger-ui.html", "/doc.html", "/webjars/**", "/swagger/**", "/knife4j/**") // 显式排除Knife4j的路径
+                .order(1);
     }
 
     /**
@@ -33,4 +48,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 // 跨域允许时间
                 .maxAge(3600);
     }
+
 }

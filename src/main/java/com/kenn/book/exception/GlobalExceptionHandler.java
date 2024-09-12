@@ -11,11 +11,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.security.auth.login.AccountExpiredException;
 
-
 /**
  * 全局异常处理器
- * 
- * @author ruoyi
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {

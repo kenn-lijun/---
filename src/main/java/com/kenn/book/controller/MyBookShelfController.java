@@ -1,6 +1,7 @@
 package com.kenn.book.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -8,7 +9,6 @@ import com.kenn.book.domain.Result;
 import com.kenn.book.domain.entity.MyBookShelf;
 import com.kenn.book.domain.res.TableDataInfo;
 import com.kenn.book.service.MyBookShelfService;
-import com.kenn.book.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -41,7 +41,7 @@ public class MyBookShelfController {
             @ApiImplicitParam(name = "pageSize",value = "分页参数,每页数量",type = "query"),
             @ApiImplicitParam(name = "openid",value = "小程序openid",required = true,type = "query")
     })
-    public Result list(Integer pageNum, Integer pageSize, String openid) {
+    public Result<?> list(Integer pageNum, Integer pageSize, String openid) {
         if (ObjectUtil.isNotNull(pageNum) && ObjectUtil.isNotNull(pageSize)) {
             PageHelper.startPage(pageNum, pageSize);
         }
@@ -57,16 +57,9 @@ public class MyBookShelfController {
 
     @PostMapping("/save")
     @ApiOperation("添加到书架")
-    public Result save(@RequestBody MyBookShelf myBookShelf) {
-        if (StringUtils.isEmpty(myBookShelf.getSource())) {
-            return Result.error("书源不能为空");
-        }
-        MyBookShelf isExist = myBookShelfService.getOne(new QueryWrapper<MyBookShelf>().eq("source", myBookShelf.getSource())
-                .eq("book_name", myBookShelf.getBookName()).eq("openid", myBookShelf.getOpenid()));
-        if (StringUtils.isNotNull(isExist)) {
-            return Result.error("已经在书架中");
-        }
-        return Result.success(myBookShelfService.save(myBookShelf));
+    public Result<?> save(@RequestBody MyBookShelf myBookShelf) {
+        boolean flag = myBookShelfService.saveEntity(myBookShelf);
+        return flag ? Result.success() : Result.error();
     }
 
     @GetMapping("/delete")
@@ -74,23 +67,24 @@ public class MyBookShelfController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id",value = "书架列表详情id",required = true,type = "query")
     })
-    public Result delete(String id) {
-        MyBookShelf isExist = myBookShelfService.getById(id);
-        if (StringUtils.isNull(isExist)) {
-            return Result.error("已经删除了");
-        }
-        return Result.success(myBookShelfService.removeById(id));
+    public Result<?> delete(Long id) {
+        boolean flag = myBookShelfService.delete(id);
+        return flag ? Result.success() : Result.error();
     }
 
     @GetMapping("/isExit")
-    @ApiOperation("从书架中删除")
+    @ApiOperation("是否已经在书架中")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "sourceId",value = "书源id",required = true,type = "query"),
             @ApiImplicitParam(name = "openid",value = "小程序openid",required = true,type = "query"),
-            @ApiImplicitParam(name = "bookLink",value = "书籍链接",required = true,type = "query"),
+            @ApiImplicitParam(name = "bookName",value = "书籍名称",required = true,type = "query"),
     })
-    public Result isExit(String bookLink,String openid) {
-        MyBookShelf isExist = myBookShelfService.getOne(new QueryWrapper<MyBookShelf>().eq("openid", openid).eq("book_link", bookLink));
-        return Result.success(StringUtils.isNotNull(isExist));
+    public Result<?> isExit(Long sourceId, String openid, String bookName) {
+        LambdaQueryWrapper<MyBookShelf> exitWrapper = new LambdaQueryWrapper<>();
+        exitWrapper.eq(MyBookShelf::getSourceId, sourceId);
+        exitWrapper.eq(MyBookShelf::getOpenid, openid);
+        exitWrapper.eq(MyBookShelf::getBookName, bookName);
+        return Result.success(myBookShelfService.count(exitWrapper) > 0);
     }
 
 }
