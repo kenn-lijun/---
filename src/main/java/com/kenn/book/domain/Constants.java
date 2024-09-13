@@ -21,7 +21,11 @@ public class Constants {
 
     public final static String RULE_TYPE_UNKNOWN = "unknown";
 
-    public final static String JS_START_TAG = "<js>";
+    public final static String JS_REGEX_TAG = "<js>([\\s\\S]*?)</js>";
+
+    public final static String PAGE_REGEX_TAG = "<page>([\\s\\S]*?)</page>";
+
+    public final static String JOIN_REGEX_TAG = "<join>([\\s\\S]*?)</join>";
 
     public final static String WECHAT_LOGIN_BASE_URL = "https://api.weixin.qq.com/sns/jscode2session";
 
@@ -32,9 +36,5 @@ public class Constants {
     public static final String SEARCH_HISTORY_LOCK_KEY = "search-history-lock-%s";
 
     public static final String BROWSE_HISTORY_LOCK_KEY = "browse-history-lock-%s";
-
-    public static final String PAGE_TAG = "{page}";
-
-    public static final String CONNECTOR_TAG = "&&";
 
 }

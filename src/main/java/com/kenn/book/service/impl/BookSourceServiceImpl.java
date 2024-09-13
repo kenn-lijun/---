@@ -10,6 +10,7 @@ import com.kenn.book.domain.entity.BookSource;
 import com.kenn.book.mapper.BookSourceMapper;
 import com.kenn.book.service.BookSourceService;
 import com.kenn.book.utils.JsUtils;
+import com.kenn.book.utils.RegexUtils;
 import com.kenn.book.utils.StringUtils;
 import com.kenn.book.utils.ThreadLocalUtils;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +39,9 @@ public class BookSourceServiceImpl extends ServiceImpl<BookSourceMapper, BookSou
         // ThreadLocal设置书源baseUrl变量
         ThreadLocalUtils.setBaseUrlCache(source.getBaseUrl());
         if (StringUtils.isNotEmpty(source.getHeader())) {
-            if (source.getHeader().contains(Constants.JS_START_TAG)) {
-                JsUtils.execute(JsUtils.getJsCode(source.getHeader()), null);
+            String jsCode = RegexUtils.getRegexCode(source.getHeader(), Constants.JS_REGEX_TAG);
+            if (StringUtils.isNotEmpty(jsCode)) {
+                JsUtils.execute(jsCode, null);
             } else {
                 ObjectMapper objectMapper = new ObjectMapper();
                 Map<String, String> headerMap = objectMapper.readValue(source.getHeader(), new TypeReference<Map<String, String>>() {});

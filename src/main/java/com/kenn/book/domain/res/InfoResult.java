@@ -26,10 +26,4 @@ public class InfoResult {
     @ApiModelProperty("章节内容")
     private String info;
 
-    @ApiModelProperty("下一页链接")
-    private String nextInfoLink;
-
-    @ApiModelProperty("上一页链接")
-    private String beforeInfoLink;
-
 }

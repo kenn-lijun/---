@@ -7,10 +7,7 @@ import com.kenn.book.domain.entity.ChapterSearchRule;
 import com.kenn.book.domain.res.ChapterInfoResult;
 import com.kenn.book.domain.res.OkHttpResult;
 import com.kenn.book.domain.res.SearchResult;
-import com.kenn.book.utils.HttpsUtils;
-import com.kenn.book.utils.JsUtils;
-import com.kenn.book.utils.StringUtils;
-import com.kenn.book.utils.ThreadLocalUtils;
+import com.kenn.book.utils.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -137,33 +134,26 @@ public class KennHtmlRule implements KennAbstractRule {
 
     /**
      * 根据规则解析html的内容信息
-     * @param userRule:	用户配置的规则
+     * @param rule:	用户配置的规则
      * @param root:	html元素
      * @return: java.lang.String
      * @author: kenn
      * @date: 2024/3/27 15:18
      */
-    public String parseInfo(String userRule, Object root) {
-        String rule = userRule;
+    public String parseInfo(String rule, Object root) {
         if (StringUtils.isEmpty(rule) || ObjectUtil.isNull(root)) {
             return null;
         }
-        String connectorUrl = null;
-        if (rule.contains(Constants.CONNECTOR_TAG)) {
-            String[] urlSplit = rule.split(Constants.CONNECTOR_TAG);
-            String connectorTag = urlSplit[0].trim();
-            rule = urlSplit[1].trim();
-            if ("baseUrl".equalsIgnoreCase(connectorTag)) {
-                connectorUrl = ThreadLocalUtils.getBaseUrl();
-            } else if ("currentUrl".equalsIgnoreCase(connectorTag)) {
-                connectorUrl = ThreadLocalUtils.getCurrentUrl();
-            }
+        String joinCode = RegexUtils.getRegexCode(rule, Constants.JOIN_REGEX_TAG);
+        if (StringUtils.isNotEmpty(joinCode)) {
+            rule = joinCode;
         }
-        List<String> executeNodeList = JsUtils.splitExecuteNode(rule);
+        List<String> executeNodeList = RegexUtils.splitJsNode(rule);
         String result = null;
         for (String executeNode : executeNodeList) {
-            if (executeNode.contains(Constants.JS_START_TAG)) {
-                String execute = JsUtils.execute(JsUtils.getJsCode(executeNode), result);
+            String jsCode = RegexUtils.getRegexCode(executeNode, Constants.JS_REGEX_TAG);
+            if (StringUtils.isNotEmpty(jsCode)) {
+                String execute = JsUtils.execute(jsCode, result);
                 if (StringUtils.isNotEmpty(execute)) {
                     result = execute;
                 }
@@ -212,7 +202,7 @@ public class KennHtmlRule implements KennAbstractRule {
                 }
             }
         }
-        return StringUtils.isEmpty(connectorUrl) ? result : connectorUrl + "," + result;
+        return StringUtils.isNotEmpty(joinCode) ? ThreadLocalUtils.getCurrentUrl() + "," + result : result;
     }
 
 }

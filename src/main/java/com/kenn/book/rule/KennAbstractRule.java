@@ -1,5 +1,6 @@
 package com.kenn.book.rule;
 
+import com.kenn.book.domain.Constants;
 import com.kenn.book.domain.entity.BookSearchRule;
 import com.kenn.book.domain.entity.ChapterSearchRule;
 import com.kenn.book.domain.entity.InfoSearchRule;
@@ -7,6 +8,7 @@ import com.kenn.book.domain.res.*;
 import com.kenn.book.exception.BaseException;
 import com.kenn.book.utils.HttpsUtils;
 import com.kenn.book.utils.JsUtils;
+import com.kenn.book.utils.RegexUtils;
 import com.kenn.book.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ public interface KennAbstractRule {
 
     default void addChapterList(ChapterSearchRule searchRule, OkHttpResult result, ChapterResult chapter) {
         if (StringUtils.isNotEmpty(searchRule.getInitData())) {
-            result.setData(JsUtils.execute(JsUtils.getJsCode(searchRule.getInitData()), result.getData()));
+            result.setData(JsUtils.execute(RegexUtils.getRegexCode(searchRule.getInitData(), Constants.JS_REGEX_TAG), result.getData()));
         }
         // 获取封面
         chapter.setImg(parseInfo(searchRule.getImgUrl(), result.getData()));
@@ -58,7 +60,7 @@ public interface KennAbstractRule {
 
     default void setInfo(InfoSearchRule searchRule, OkHttpResult result, InfoResult infoResult) {
         if (StringUtils.isNotEmpty(searchRule.getInitData())) {
-            result.setData(JsUtils.execute(JsUtils.getJsCode(searchRule.getInitData()), result.getData()));
+            result.setData(JsUtils.execute(RegexUtils.getRegexCode(searchRule.getInitData(), Constants.JS_REGEX_TAG), result.getData()));
         }
         // 获取小说内容
         String info = parseInfo(searchRule.getInfo(), result.getData());

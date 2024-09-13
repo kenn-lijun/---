@@ -2,20 +2,28 @@ package com.kenn.book;
 
 
 import com.kenn.book.controller.SearchController;
-import com.kenn.book.domain.*;
-import com.kenn.book.domain.res.*;
+import com.kenn.book.domain.Constants;
+import com.kenn.book.domain.Result;
+import com.kenn.book.domain.res.ChapterInfoResult;
+import com.kenn.book.domain.res.ChapterResult;
+import com.kenn.book.domain.res.InfoResult;
+import com.kenn.book.domain.res.SearchResult;
 import com.kenn.book.rule.KennSearchUtils;
 import com.kenn.book.service.InfoPurifyRuleService;
 import com.kenn.book.utils.CollectionUtils;
 import com.kenn.book.utils.JsUtils;
 import com.kenn.book.utils.ThreadLocalUtils;
+import org.jasypt.encryption.StringEncryptor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +39,9 @@ public class BookApplicationTests {
 
     @Autowired
     InfoPurifyRuleService purifyRuleService;
+
+    @Autowired
+    StringEncryptor stringEncryptor;
 
     @Test
     public void searchByAllSource() {
@@ -96,7 +107,7 @@ public class BookApplicationTests {
 
     @Test
     public void testSearchBookName() {
-        List<SearchResult> resultList = searchUtils.searchByBookName(11L, "斗破", 1);
+        List<SearchResult> resultList = searchUtils.searchByBookName(8L, "斗破", 1);
         for (SearchResult searchResult : resultList) {
             System.out.println(searchResult);
         }
@@ -108,7 +119,7 @@ public class BookApplicationTests {
         // 4L http://wap.7zxs.cc/wapbook/8042.html；http://wap.7zxs.cc/wapbook/14046.html；http://wap.7zxs.cc/wapbook/24673.html
 //        ChapterResult chapter = searchUtils.getChapter(10L, "http://s.nshkedu.com/api/book/detail/0/21.json");
         long startTime = new Date().getTime();
-        ChapterResult chapter = searchUtils.getChapter(11L, "1784900");
+        ChapterResult chapter = searchUtils.getChapter(8L, "/xiaoshuo/12017.html");
         System.out.println(chapter.getIntroduce());
         System.out.println(chapter.getImg());
         for (ChapterInfoResult chapterInfo : chapter.getChapterList()) {
@@ -122,7 +133,8 @@ public class BookApplicationTests {
     public void testInfo() throws Exception {
         // 3L https://www.bqgbe.com/book/502/
         // 4L http://wap.7zxs.cc/wapbook/8042.html；http://wap.7zxs.cc/wapbook/14046.html；http://wap.7zxs.cc/wapbook/24673.html
-        InfoResult info = searchUtils.getInfo(11L, "https://api-bc.wtzw.com/api/v4/book/detail?&id=1784900&imei_ip=2937357107&teeny_mode=0&sign=615d74d8d9ee2822b3d34896d1612d12,17059214170001");
+//        InfoResult info = searchUtils.getInfo(7L, "https://api-bc.wtzw.com/api/v4/book/detail?&id=1784900&imei_ip=2937357107&teeny_mode=0&sign=615d74d8d9ee2822b3d34896d1612d12,17059214170001");
+        InfoResult info = searchUtils.getInfo(8L, "https://www.zbcxw.cn/xiaoshuo/12017.html,34034.html");
 //        InfoResult info = searchUtils.getInfo(9L, "https://www.sewenwang.top/book/934/35040.html");
         System.out.println(info);
     }
@@ -131,7 +143,7 @@ public class BookApplicationTests {
     public void testExplore() throws Exception {
         // 3L https://www.bqgbe.com/book/502/
         // 4L http://wap.7zxs.cc/wapbook/8042.html；http://wap.7zxs.cc/wapbook/14046.html；http://wap.7zxs.cc/wapbook/24673.html
-        List<SearchResult> bookList = searchUtils.explore(11L, "都市", 1);
+        List<SearchResult> bookList = searchUtils.explore(8L, "默认", 1);
         for (SearchResult searchResult : bookList) {
             System.out.println(searchResult);
         }

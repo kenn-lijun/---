@@ -9,10 +9,7 @@ import com.kenn.book.domain.entity.ChapterSearchRule;
 import com.kenn.book.domain.res.ChapterInfoResult;
 import com.kenn.book.domain.res.OkHttpResult;
 import com.kenn.book.domain.res.SearchResult;
-import com.kenn.book.utils.HttpsUtils;
-import com.kenn.book.utils.JsUtils;
-import com.kenn.book.utils.StringUtils;
-import com.kenn.book.utils.ThreadLocalUtils;
+import com.kenn.book.utils.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -35,13 +32,14 @@ public final class KennJsonRule implements KennAbstractRule {
     public void addBookList(BookSearchRule searchRule, OkHttpResult result, List<SearchResult> bookList) {
         if (HttpsUtils.judgeResult(result)) {
             String bookListRule = searchRule.getBookList();
-            List<String> executeNodeList = JsUtils.splitExecuteNode(bookListRule);
+            List<String> executeNodeList = RegexUtils.splitJsNode(bookListRule);
 
             List<?> resultList = null;
             String data = result.getData();
             for (String executeNode : executeNodeList) {
-                if (executeNode.contains(Constants.JS_START_TAG)) {
-                    data = JsUtils.execute(JsUtils.getJsCode(executeNode), data);
+                String jsCode = RegexUtils.getRegexCode(executeNode, Constants.JS_REGEX_TAG);
+                if (StringUtils.isNotEmpty(jsCode)) {
+                    data = JsUtils.execute(jsCode, data);
                 } else {
                     resultList = JsonPath.parse(data).read(executeNode, List.class);
                 }
@@ -92,13 +90,14 @@ public final class KennJsonRule implements KennAbstractRule {
     public boolean recursionAddChapter(ChapterSearchRule searchRule, OkHttpResult result, List<ChapterInfoResult> chapterInfoList) {
         boolean flag = false;
         if (HttpsUtils.judgeResult(result)) {
-            List<String> executeNodeList = JsUtils.splitExecuteNode(searchRule.getChapterList());
+            List<String> executeNodeList = RegexUtils.splitJsNode(searchRule.getChapterList());
 
             List<?> chapterList = null;
             String data = result.getData();
             for (String executeNode : executeNodeList) {
-                if (executeNode.contains(Constants.JS_START_TAG)) {
-                    data = JsUtils.execute(JsUtils.getJsCode(executeNode), data);
+                String jsCode = RegexUtils.getRegexCode(executeNode, Constants.JS_REGEX_TAG);
+                if (StringUtils.isNotEmpty(jsCode)) {
+                    data = JsUtils.execute(jsCode, data);
                 } else {
                     chapterList = JsonPath.parse(data).read(executeNode, List.class);
                 }
@@ -140,27 +139,20 @@ public final class KennJsonRule implements KennAbstractRule {
         return flag;
     }
 
-    public String parseInfo(String userRule, Object data) {
-        String rule = userRule;
+    public String parseInfo(String rule, Object data) {
         if (StringUtils.isEmpty(rule)) {
             return null;
         }
-        String connectorUrl = null;
-        if (rule.contains(Constants.CONNECTOR_TAG)) {
-            String[] urlSplit = rule.split(Constants.CONNECTOR_TAG);
-            String connectorTag = urlSplit[0].trim();
-            rule = urlSplit[1].trim();
-            if ("baseUrl".equalsIgnoreCase(connectorTag)) {
-                connectorUrl = ThreadLocalUtils.getBaseUrl();
-            } else if ("currentUrl".equalsIgnoreCase(connectorTag)) {
-                connectorUrl = ThreadLocalUtils.getCurrentUrl();
-            }
+        String joinCode = RegexUtils.getRegexCode(rule, Constants.JOIN_REGEX_TAG);
+        if (StringUtils.isNotEmpty(joinCode)) {
+            rule = joinCode;
         }
-        List<String> executeNodeList = JsUtils.splitExecuteNode(rule);
+        List<String> executeNodeList = RegexUtils.splitJsNode(rule);
         String result = ObjectUtil.isNotNull(data) ? data.toString() : null;
         for (String executeNode : executeNodeList) {
-            if (executeNode.contains(Constants.JS_START_TAG)) {
-                String execute = JsUtils.execute(JsUtils.getJsCode(executeNode), result);
+            String jsCode = RegexUtils.getRegexCode(executeNode, Constants.JS_REGEX_TAG);
+            if (StringUtils.isNotEmpty(jsCode)) {
+                String execute = JsUtils.execute(jsCode, result);
                 if (StringUtils.isNotEmpty(execute)) {
                     result = execute;
                 }
@@ -177,7 +169,7 @@ public final class KennJsonRule implements KennAbstractRule {
                 }
             }
         }
-        return StringUtils.isEmpty(connectorUrl) ? result : connectorUrl + "," + result;
+        return StringUtils.isNotEmpty(joinCode) ? ThreadLocalUtils.getCurrentUrl() + "," + result : result;
     }
 
 }

@@ -54,25 +54,22 @@ public class KennSearchUtils {
             // 用户配置的搜索地址相关参数
             String searchParam = bookSearchRule.getSearchParam();
 
-            boolean pageFlag = false;
-            String pageExecuteNode = JsUtils.pageExecuteNode(searchUrl);
-            if (StringUtils.isNotEmpty(pageExecuteNode)) {
-                String pageValue = JsUtils.executePage(JsUtils.getPageCode(String.format(pageExecuteNode, page)));
-                searchUrl = searchUrl.replace(pageExecuteNode, pageValue);
-                pageFlag = true;
+            String pageCode = RegexUtils.getRegexCode(searchUrl, Constants.PAGE_REGEX_TAG);
+            if (StringUtils.isNotEmpty(pageCode)) {
+                String pageValue = JsUtils.executePage(String.format(pageCode, page));
+                searchUrl = searchUrl.replaceAll(Constants.PAGE_REGEX_TAG, pageValue);
             }
 
             if (StringUtils.isNotEmpty(searchParam)) {
-                pageExecuteNode = JsUtils.pageExecuteNode(searchParam);
-                if (StringUtils.isNotEmpty(pageExecuteNode)) {
-                    String pageValue = JsUtils.executePage(JsUtils.getPageCode(String.format(pageExecuteNode, page)));
-                    searchParam = searchParam.replace(pageExecuteNode, pageValue);
-                    pageFlag = true;
+                pageCode = RegexUtils.getRegexCode(searchParam, Constants.PAGE_REGEX_TAG);
+                if (StringUtils.isNotEmpty(pageCode)) {
+                    String pageValue = JsUtils.executePage(String.format(pageCode, page));
+                    searchParam = searchParam.replaceAll(Constants.PAGE_REGEX_TAG, pageValue);
                 }
             }
 
             // 如果书源配置中不是多页的情况 但是传过来的参数不是第一页就返回空数据
-            if (page > 1 && !pageFlag) {
+            if (page > 1 && StringUtils.isEmpty(pageCode)) {
                 return bookList;
             }
 
@@ -83,12 +80,13 @@ public class KennSearchUtils {
                 paramMap = objectMapper.readValue(searchParam, new TypeReference<Map<String, String>>() {});
             }
 
-            if (searchUrl.contains(Constants.JS_START_TAG)) {
-                List<String> executeNodes = JsUtils.splitExecuteNode(searchUrl);
+            List<String> executeNodes = RegexUtils.splitJsNode(searchUrl);
+            if (CollUtil.isNotEmpty(executeNodes)) {
                 StringBuilder sb = new StringBuilder();
                 for (String executeNode : executeNodes) {
-                    if (executeNode.startsWith(Constants.JS_START_TAG)) {
-                        sb.append(JsUtils.execute(JsUtils.getJsCode(executeNode), name));
+                    String jsCode = RegexUtils.getRegexCode(executeNode, Constants.JS_REGEX_TAG);
+                    if (StringUtils.isNotEmpty(jsCode)) {
+                        sb.append(JsUtils.execute(jsCode, name));
                     } else {
                         sb.append(executeNode);
                     }
@@ -111,7 +109,7 @@ public class KennSearchUtils {
         ChapterSearchRule searchRule = chapterSearchRuleService.getBySourceId(sourceId);
         // 初始化链接
         if (StringUtils.isNotEmpty(searchRule.getInitUrl())) {
-            bookLink = JsUtils.execute(JsUtils.getJsCode(searchRule.getInitUrl()), bookLink);
+            bookLink = JsUtils.execute(RegexUtils.getRegexCode(searchRule.getInitUrl(), Constants.JS_REGEX_TAG), bookLink);
         }
         // 设置ThreadLocal相关变量
         ThreadLocalUtils.setCurrentUrlCache(bookLink);
@@ -131,7 +129,7 @@ public class KennSearchUtils {
 
         // 初始化链接
         if (StringUtils.isNotEmpty(searchRule.getInitUrl())) {
-            chapterLink = JsUtils.execute(JsUtils.getJsCode(searchRule.getInitUrl()), chapterLink);
+            chapterLink = JsUtils.execute(RegexUtils.getRegexCode(searchRule.getInitUrl(), Constants.JS_REGEX_TAG), chapterLink);
         }
 
         // 设置ThreadLocal相关变量
@@ -155,10 +153,11 @@ public class KennSearchUtils {
         // 获取发现页分类配置信息
         String categoryInfo = searchRule.getCategoryInfo();
         String searchUrlJsCode = null;
-        if (categoryInfo.contains(Constants.JS_START_TAG)) {
-            List<String> executeNodes = JsUtils.splitExecuteNode(categoryInfo);
+        List<String> executeNodes = RegexUtils.splitJsNode(categoryInfo);
+        // size > 1代表有js代码标签
+        if (executeNodes.size() > 1) {
             categoryInfo = executeNodes.get(0);
-            searchUrlJsCode = JsUtils.getJsCode(executeNodes.get(1));
+            searchUrlJsCode = RegexUtils.getRegexCode(executeNodes.get(1), Constants.JS_REGEX_TAG);
         }
 
         List<Map<String, String>> categoryList = new ObjectMapper().readValue(categoryInfo, new TypeReference<List<Map<String, String>>>() {});
@@ -169,9 +168,10 @@ public class KennSearchUtils {
         // exploreUrl不为空的情况为获取下一页的书籍列表
         String exploreUrl = categoryOptional.get().get("url");
 
-        // todo 可以改成使用<page></page>的形式进行分页设置
-        if (exploreUrl.contains(Constants.PAGE_TAG)) {
-            exploreUrl = exploreUrl.replace(Constants.PAGE_TAG, page.toString());
+        String pageCode = RegexUtils.getRegexCode(exploreUrl, Constants.PAGE_REGEX_TAG);
+        if (StringUtils.isNotEmpty(pageCode)) {
+            String pageValue = JsUtils.executePage(String.format(pageCode, page));
+            exploreUrl = exploreUrl.replaceAll(Constants.PAGE_REGEX_TAG, pageValue);
         } else {
             // 如果书源配置中不是多页的情况 但是传过来的参数不是第一页就返回空数据
             if (page > 1) {
