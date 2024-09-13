@@ -113,15 +113,21 @@ mybatis-plus:
 
 # 微信小程序相关配置
 wx:
-  appId: xxxxxxxxxxxxxxxxx
-  secret: xxxxxxxxxxxxxxxxx
+  appId: ENC(xxxxxxxxxxxxxxxxx)
+  secret: ENC(xxxxxxxxxxxxxxxxx)
   grantType: authorization_code;
 
 # 自定义相关配置
 kenn:
   # 请求加密串
-  signKey: xxxxxxxxxxxxxxx
+  signKey: ENC(xxxxxxxxxxxxxxx)
   # 需要排序加密校验的地址
   excludes:
     # 净化
     - /purify/**
+
+# 配置文件加密根密码
+jasypt:
+  encryptor:
+    algorithm: PBEWithMD5AndDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
