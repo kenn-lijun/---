@@ -30,10 +30,10 @@
 
 ### 自有标签
 
-- <js>xxx</js>: 
+- js标签
 
   ```tex
-  1. js标签 
+  1. 用法: <js>xxx</js>
   2. 作用: 用于执行js代码串 xxx为js代码串
   3. 支持值: js代码串、page标签、result、baseUrl、currentUrl、自有的java方法(详见JavaUtils和ThreadLocalUtils工具类)
   例:
@@ -44,10 +44,10 @@
   ⑤ThreadLocalUtils.addHeader(String key, String value) 添加header头
   ```
 
-- <page>xxx</page>: 
+- page标签: 
 
   ```tex
-  1. page标签 
+  1. 用法: <page>xxx</page>
   2. 作用: 根据当前页码获取值
   3. 支持值: %s、%s组成的数字运算表达式
   例: 
@@ -55,10 +55,10 @@
   ②若用户传过来的页码是2 <page>(%s-1)*10</page>时得到的就是10
   ```
 
-- <join>xxx</join>: 
+- join标签: 
 
   ```tex
-  1. join标签
+  1. 用法: <join>xxx</join>
   2. 作用: 拼接章节链接(获取章节链接时 通过爬虫规则获取到的时相对链接或章节id时 将书籍链接与爬虫结果拼接起来便于后续处理)
   3. 支持值: Jsoup之css选择器爬虫规则、JsonPath爬虫规则
   例:
@@ -130,8 +130,10 @@
   - searchParam: 请求参数(非必填)
   
     ```tex
+    
+    ```
   1. 支持json格式数据
-    例: {"kw": "%s","pn": "<page>%s</page>","is_author": "0"} 
+      例: {"kw": "%s","pn": "<page>%s</page>","is_author": "0"} 
   2. json数据可使用page标签 
     3. json数据书名值使用%s占位
   ```
@@ -148,8 +150,8 @@
     例: $.data.books[*]
     3. 支持js标签+JsonPath规则: js标签对书籍进行预处理后的结果再使用JsonPath规则获取(注: js标签的结果必须是json格式数据、js标签内部使用result代表的是通过书籍链接获取的数据 因数据可能加密 需在此解密后使用)
   例: <js>xxx</js>$.result[*]
-    ```
-    
+  ```
+  
 - bookName: 获取书籍名称的爬虫规则(必填)
     ```tex
     1. 在bookList获取到的内容基础上进行获取
@@ -167,7 +169,7 @@
     3. 支持JsonPath爬虫规则
     例: book_data[0].book_id
   ```
-    
+  
   - author: 获取作者的爬虫规则(必填) 同bookName
   
   - imgUrl: 获取封面链接的爬虫规则(非必填) 同bookName
