@@ -5,7 +5,7 @@
 
 ### 爱宁呦小说 - 小程序
 - 使用uni-app、uView开发
-- 仓库传送门: [爱宁呦小说 - 小程序](https://gitee.com/jun-kenn/ai-ning-book-ui.git)
+- 仓库传送门: [爱宁呦小说 - 小程序v2.0.0](https://gitee.com/jun-kenn/ai-ning-book-ui/tree/v2.0.0)
 
 
 ### 版本变更项
